@@ -18,10 +18,12 @@
     body { margin: 0; color: var(--light); background: radial-gradient(circle at 82% 8%, #4f2672 0, var(--violet) 44%); font: 15px/1.7 Inter, sans-serif; }
     nav { position: sticky; top: 0; z-index: 2; background: rgba(37,16,68,.98); border-bottom: 1px solid rgba(214,173,92,.3); backdrop-filter: blur(18px); }
     .nav-inner { width: min(1180px, calc(100% - 40px)); margin: auto; min-height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 25px; }
-    .brand { color: var(--light); font: 600 27px "Cormorant Garamond", serif; letter-spacing: .08em; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--light); font: 600 27px "Cormorant Garamond", serif; letter-spacing: .08em; }
+    .brand-icon { width: 38px; height: 38px; border: 1px solid var(--gold); border-radius: 50%; box-shadow: 0 0 0 4px rgba(214,173,92,.06), 0 0 24px rgba(214,173,92,.2); }
     .brand span { color: var(--gold); }
     .links { display: flex; gap: 24px; color: #d6def1; font-size: 13px; }
     .links a:hover, a { color: var(--gold); }
+    .nav-cta { padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px; }
     main { width: min(1040px, calc(100% - 40px)); margin: auto; padding: 82px 0; }
     .eyebrow { color: var(--gold); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
     h1, h2 { font-family: "Cormorant Garamond", serif; font-weight: 600; line-height: 1; }
@@ -36,7 +38,7 @@
   </style>
 </head>
 <body>
-  <nav><div class="nav-inner"><a class="brand" href="/">Astro<span>GPT</span></a><div class="links"><a href="/#about">About</a><a href="/#concepts">Concepts</a><a href="/#calculations">Calculations</a><a href="/#website">Website</a><a href="research.html">Research</a></div></div></nav>
+  <nav><div class="nav-inner"><a class="brand" href="/"><img class="brand-icon" src="/favicon.svg?v=2" alt="AstroGPT logo" />Astro<span>GPT</span></a><div class="links"><a href="/#about">About</a><a href="/#concepts">Concepts</a><a href="research.html#calculations">Calculations</a><a href="/#website">Website</a><a href="research.html">Research</a><a class="nav-cta" href="/horoscope.html">Generate Horoscope</a></div></div></nav>
   <main>
     <div class="eyebrow">AstroGPT Research Library</div>
     <h1>Knowledge behind the horoscope.</h1>
@@ -48,6 +50,7 @@
       <article id="panchanga"><h2>Panchanga</h2><p>Panchanga means five limbs: tithi, vara, nakshatra, yoga and karana. Together they form a traditional calendrical lens for describing a day, combining solar and lunar cycles with weekday and angular relationships.</p></article>
       <article id="astronomy"><h2>Indian Astronomy</h2><p>Indian astronomical works used mathematical tables, geometric reasoning and observation to calculate planetary and lunar positions. These traditions contributed to timekeeping and calendar-making across many regions and historical periods.</p></article>
       <article id="modern-engineering"><h2>Ancient to Modern</h2><p>AstroGPT treats historical concepts as structured knowledge: inputs are validated, calculations are made reproducible, and results are returned through a web API. This makes the computational steps inspectable while keeping cultural interpretation clearly labelled.</p></article>
+      <article id="calculations"><h2>Calculation and Transfer Theory</h2><p>The computational model transfers birth data into a structured cultural representation through a series of explicit steps: validate the date, time and place; normalize the input; calculate a reproducible celestial position; map that position to a rashi and nakshatra; and finally present the traditional interpretation separately from the calculation. The two fundamental divisions are 360° ÷ 12 = 30° and 360° ÷ 27 = 13°20′.</p></article>
     </div>
   </main>
   <footer>AstroGPT research material is provided for educational and cultural exploration.</footer>
