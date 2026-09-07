@@ -1,0 +1,16 @@
+{
+  "name": "AstroGPT",
+  "short_name": "AstroGPT",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#251044",
+  "background_color": "#170d2b",
+  "icons": [
+    {
+      "src": "/favicon.svg?v=2",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

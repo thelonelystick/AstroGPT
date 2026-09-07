@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AstroGPT sign flowchart connecting the twelve zodiac signs with Jyotisha Rashis and elemental factions." />
+  <title>It's a Sign | AstroGPT</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+  <link rel="icon" href="/favicon.svg?v=2" sizes="any" />
+  <link rel="shortcut icon" href="/favicon.svg?v=2" />
+  <link rel="apple-touch-icon" href="/favicon.svg?v=2" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --violet: #170d2b; --panel: #321957; --taskbar: #251044; --gold: #d6ad5c; --gold-light: #f1d38b; --light: #fff8e7; --muted: #c9b9d8; --line: rgba(214,173,92,.3); }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--light); background: radial-gradient(circle at 82% 7%, #4f2672 0, var(--violet) 45%); font: 14px/1.6 Inter, sans-serif; }
+    nav { position: sticky; top: 0; z-index: 4; background: rgba(37,16,68,.98); border-bottom: 1px solid var(--line); backdrop-filter: blur(18px); }
+    .nav-inner { width: min(1180px, calc(100% - 40px)); min-height: 74px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 25px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--light); font: 600 27px "Cormorant Garamond", serif; letter-spacing: .08em; text-decoration: none; }
+    .brand span, a { color: var(--gold); }
+    .brand-icon { width: 38px; height: 38px; border: 1px solid var(--gold); border-radius: 50%; box-shadow: 0 0 0 4px rgba(214,173,92,.06), 0 0 24px rgba(214,173,92,.2); }
+    .links { display: flex; align-items: center; gap: 23px; font-size: 13px; }
+    .links a { color: #d6def1; text-decoration: none; }
+    .links a:hover { color: var(--gold-light); }
+    .nav-cta { padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px; }
+    main { width: min(1180px, calc(100% - 40px)); margin: auto; padding: 78px 0 90px; }
+    .eyebrow { color: var(--gold); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+    h1, h2, h3 { font-family: "Cormorant Garamond", serif; font-weight: 600; line-height: 1; }
+    h1 { max-width: 760px; margin: 18px 0 22px; font-size: clamp(54px, 9vw, 100px); }
+    .lead { max-width: 720px; color: var(--muted); font-size: 16px; }
+    .flowchart { display: grid; gap: 18px; margin-top: 62px; }
+    .flow-row { display: grid; grid-template-columns: 180px 1fr; gap: 18px; align-items: stretch; }
+    .faction { display: flex; flex-direction: column; justify-content: center; padding: 20px; border: 1px solid var(--line); background: rgba(50,25,87,.72); }
+    .faction h2 { margin: 0; color: var(--gold-light); font-size: 34px; }
+    .faction p { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+    .signs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .sign { position: relative; padding: 18px; border: 1px solid rgba(214,173,92,.2); background: rgba(23,13,43,.72); }
+    .sign::before { content: ""; position: absolute; top: 50%; left: -19px; width: 19px; border-top: 1px solid var(--line); }
+    .sign h3 { margin: 0; color: var(--gold-light); font-size: 27px; }
+    .sign h3 span { color: var(--light); font: 600 12px Inter, sans-serif; }
+    .sign p { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-top: 28px; color: var(--muted); font-size: 12px; }
+    .legend strong { color: var(--gold); }
+    footer { width: min(1180px, calc(100% - 40px)); margin: auto; padding: 0 0 45px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 760px) { .nav-inner { width: calc(100% - 28px); } .links { gap: 10px; font-size: 11px; } .links a:nth-child(-n+2) { display: none; } main, footer { width: calc(100% - 28px); } .flow-row { grid-template-columns: 1fr; } .sign::before { top: -19px; left: 50%; width: 0; height: 19px; border-top: 0; border-left: 1px solid var(--line); } .signs { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav><div class="nav-inner"><a class="brand" href="/"><img class="brand-icon" src="/favicon.svg?v=2" alt="AstroGPT logo" />Astro<span>GPT</span></a><div class="links"><a href="/#about">About</a><a href="signs.html">It's a Sign</a><a href="research.html">Research</a><a class="nav-cta" href="horoscope.html">Generate Horoscope</a></div></div></nav>
+  <main>
+    <div class="eyebrow">The Sign Atlas</div>
+    <h1>Every sign has a place in the sky.</h1>
+    <p class="lead">Follow the flow from the four elemental factions to the twelve Western zodiac signs and their Jyotisha Rashi counterparts. The correspondences are presented as an educational comparison between traditions.</p>
+    <section class="flowchart" aria-label="Zodiac sign flowchart">
+      <div class="flow-row"><div class="faction"><h2>Fire</h2><p>Drive · identity · expansion</p></div><div class="signs"><article class="sign"><h3>Aries <span>· Mesha</span></h3><p>Cardinal · Mars · 21 Mar–19 Apr</p></article><article class="sign"><h3>Leo <span>· Simha</span></h3><p>Fixed · Sun · 23 Jul–22 Aug</p></article><article class="sign"><h3>Sagittarius <span>· Dhanu</span></h3><p>Mutable · Jupiter · 22 Nov–21 Dec</p></article></div></div>
+      <div class="flow-row"><div class="faction"><h2>Earth</h2><p>Form · patience · craft</p></div><div class="signs"><article class="sign"><h3>Taurus <span>· Vrishabha</span></h3><p>Fixed · Venus · 20 Apr–20 May</p></article><article class="sign"><h3>Virgo <span>· Kanya</span></h3><p>Mutable · Mercury · 23 Aug–22 Sep</p></article><article class="sign"><h3>Capricorn <span>· Makara</span></h3><p>Cardinal · Saturn · 22 Dec–19 Jan</p></article></div></div>
+      <div class="flow-row"><div class="faction"><h2>Air</h2><p>Mind · exchange · perspective</p></div><div class="signs"><article class="sign"><h3>Gemini <span>· Mithuna</span></h3><p>Mutable · Mercury · 21 May–20 Jun</p></article><article class="sign"><h3>Libra <span>· Tula</span></h3><p>Cardinal · Venus · 23 Sep–22 Oct</p></article><article class="sign"><h3>Aquarius <span>· Kumbha</span></h3><p>Fixed · Saturn · 20 Jan–18 Feb</p></article></div></div>
+      <div class="flow-row"><div class="faction"><h2>Water</h2><p>Feeling · memory · intuition</p></div><div class="signs"><article class="sign"><h3>Cancer <span>· Karka</span></h3><p>Cardinal · Moon · 21 Jun–22 Jul</p></article><article class="sign"><h3>Scorpio <span>· Vrishchika</span></h3><p>Fixed · Mars · 23 Oct–21 Nov</p></article><article class="sign"><h3>Pisces <span>· Meena</span></h3><p>Mutable · Jupiter · 19 Feb–20 Mar</p></article></div></div>
+    </section>
+    <div class="legend"><span><strong>Western zodiac:</strong> tropical date ranges</span><span><strong>Jyotisha:</strong> Rashi names</span><span><strong>Factions:</strong> four classical elements</span></div>
+  </main>
+  <footer>AstroGPT sign material is provided for educational and cultural exploration.</footer>
+</body>
+</html>
