@@ -1,0 +1,1605 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta
+    name="description"
+    content="JYOTISHA — Exploring Indian Knowledge Systems through traditional Jyotisha, mathematics, astronomy and modern web engineering."
+  />
+
+  <meta
+    name="keywords"
+    content="Jyotisha, Indian Knowledge Systems, IKS, Vedic Astrology, Nakshatra, Rashi, Panchanga, Indian Astronomy"
+  />
+
+  <meta name="author" content="JYOTISHA IKS Project" />
+
+  <title>JYOTISHA — Ancient Indian Knowledge × Modern Engineering</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --navy: #07111f;
+      --navy-2: #0b1728;
+      --navy-3: #101f34;
+
+      --gold: #d6ad5c;
+      --gold-light: #f1d38b;
+
+      --ivory: #f7f1e3;
+      --muted: #a9b3c2;
+
+      --border: rgba(214, 173, 92, 0.18);
+      --glass: rgba(255, 255, 255, 0.045);
+
+      --max-width: 1240px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--navy);
+      color: var(--ivory);
+      font-family: "Inter", sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    /* =========================
+       BACKGROUND
+    ========================= */
+
+    .star-field {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .star-field::before,
+    .star-field::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.75) 1px, transparent 1px),
+        radial-gradient(circle, rgba(214,173,92,.35) 1px, transparent 1px);
+      background-size: 90px 90px, 150px 150px;
+      background-position: 10px 20px, 60px 90px;
+      opacity: .15;
+    }
+
+    .ambient {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(214,173,92,.055);
+      filter: blur(100px);
+      top: 5%;
+      right: -180px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* =========================
+       NAVBAR
+    ========================= */
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: .3s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(7,17,31,.88);
+      backdrop-filter: blur(18px);
+      border-bottom-color: var(--border);
+    }
+
+    .nav-container {
+      max-width: var(--max-width);
+      margin: auto;
+      padding: 18px 28px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-symbol {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+
+      display: grid;
+      place-items: center;
+
+      color: var(--gold-light);
+      font-family: "Noto Sans Devanagari", sans-serif;
+      font-size: 17px;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-text strong {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 22px;
+      letter-spacing: .08em;
+    }
+
+    .brand-text span {
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 13px;
+      color: #c5ccd7;
+    }
+
+    .nav-links a {
+      transition: .25s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold-light);
+    }
+
+    .nav-cta {
+      padding: 10px 18px;
+      border: 1px solid var(--border);
+      color: var(--gold-light);
+      border-radius: 999px;
+      transition: .25s ease;
+    }
+
+    .nav-cta:hover {
+      background: rgba(214,173,92,.08);
+      border-color: rgba(214,173,92,.4);
+    }
+
+    .menu-button {
+      display: none;
+      border: 0;
+      background: none;
+      color: var(--ivory);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* =========================
+       HERO
+    ========================= */
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+
+      max-width: var(--max-width);
+      margin: auto;
+      padding: 150px 28px 90px;
+
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 760px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+
+      padding: 7px 13px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+
+      color: var(--gold-light);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+
+      background: rgba(214,173,92,.035);
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 12px rgba(214,173,92,.7);
+    }
+
+    h1 {
+      margin-top: 25px;
+
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(64px, 11vw, 145px);
+      font-weight: 500;
+      letter-spacing: -.035em;
+      line-height: .8;
+    }
+
+    .hero h1 span {
+      color: var(--gold-light);
+    }
+
+    .hero-subtitle {
+      margin-top: 32px;
+
+      max-width: 660px;
+
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(23px, 3vw, 34px);
+      line-height: 1.2;
+      color: #e5dcc9;
+    }
+
+    .hero-description {
+      margin-top: 22px;
+      max-width: 650px;
+
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 13px;
+      margin-top: 34px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 13px 21px;
+      border-radius: 999px;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      cursor: pointer;
+      transition: .25s ease;
+    }
+
+    .button-primary {
+      background: var(--gold);
+      color: #10151c;
+      border: 1px solid var(--gold);
+    }
+
+    .button-primary:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    .button-secondary {
+      color: var(--ivory);
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.03);
+    }
+
+    .button-secondary:hover {
+      border-color: rgba(214,173,92,.4);
+      transform: translateY(-2px);
+    }
+
+    /* Hero astronomy graphic */
+
+    .orbit-system {
+      position: absolute;
+      width: 520px;
+      height: 520px;
+
+      right: -80px;
+      top: 50%;
+      transform: translateY(-50%);
+
+      display: grid;
+      place-items: center;
+
+      opacity: .85;
+      pointer-events: none;
+    }
+
+    .orbit {
+      position: absolute;
+      border: 1px solid rgba(214,173,92,.16);
+      border-radius: 50%;
+    }
+
+    .orbit:nth-child(1) {
+      width: 180px;
+      height: 180px;
+    }
+
+    .orbit:nth-child(2) {
+      width: 310px;
+      height: 310px;
+    }
+
+    .orbit:nth-child(3) {
+      width: 450px;
+      height: 450px;
+    }
+
+    .sun {
+      width: 70px;
+      height: 70px;
+
+      border: 1px solid rgba(214,173,92,.55);
+      border-radius: 50%;
+
+      display: grid;
+      place-items: center;
+
+      color: var(--gold-light);
+      font-size: 26px;
+
+      box-shadow:
+        0 0 50px rgba(214,173,92,.08),
+        inset 0 0 25px rgba(214,173,92,.05);
+    }
+
+    .planet {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+
+      background: var(--gold-light);
+      border-radius: 50%;
+
+      box-shadow: 0 0 15px rgba(214,173,92,.7);
+    }
+
+    .planet-one {
+      top: 115px;
+      right: 130px;
+    }
+
+    .planet-two {
+      bottom: 90px;
+      left: 95px;
+    }
+
+    .planet-three {
+      top: 240px;
+      left: 10px;
+    }
+
+    /* =========================
+       SECTION
+    ========================= */
+
+    section {
+      max-width: var(--max-width);
+      margin: auto;
+      padding: 110px 28px;
+    }
+
+    .section-header {
+      max-width: 680px;
+      margin-bottom: 50px;
+    }
+
+    .section-label {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(40px, 6vw, 68px);
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .section-header p {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* =========================
+       CONCEPT CARDS
+    ========================= */
+
+    .concept-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .concept-card {
+      padding: 28px;
+
+      border: 1px solid var(--border);
+      background: var(--glass);
+
+      min-height: 220px;
+
+      transition: .3s ease;
+    }
+
+    .concept-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(214,173,92,.4);
+      background: rgba(214,173,92,.045);
+    }
+
+    .concept-number {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: .15em;
+    }
+
+    .concept-card h3 {
+      margin-top: 35px;
+
+      font-family: "Cormorant Garamond", serif;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .concept-card p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* =========================
+       CALCULATION SECTION
+    ========================= */
+
+    .calculation-section {
+      border-top: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+
+      max-width: none;
+      padding-left: max(28px, calc((100% - var(--max-width)) / 2 + 28px));
+      padding-right: max(28px, calc((100% - var(--max-width)) / 2 + 28px));
+
+      background: rgba(255,255,255,.015);
+    }
+
+    .calculation-flow {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .flow-item {
+      border: 1px solid var(--border);
+      padding: 20px 12px;
+      min-height: 125px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+
+      background: rgba(255,255,255,.025);
+    }
+
+    .flow-item strong {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 20px;
+      color: var(--gold-light);
+    }
+
+    .flow-item span {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 7px;
+    }
+
+    .flow-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      font-size: 18px;
+    }
+
+    .math-box {
+      margin-top: 35px;
+      padding: 28px;
+
+      border: 1px solid var(--border);
+      background: rgba(214,173,92,.035);
+    }
+
+    .math-box-title {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .equations {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 35px;
+      margin-top: 18px;
+    }
+
+    .equation {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 28px;
+      color: var(--ivory);
+    }
+
+    /* =========================
+       WEBSITE FEATURE
+    ========================= */
+
+    .feature-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 70px;
+      align-items: center;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .feature {
+      padding: 18px 20px;
+
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .feature-icon {
+      color: var(--gold);
+      font-size: 17px;
+    }
+
+    .feature strong {
+      font-size: 13px;
+    }
+
+    .feature p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .dashboard-preview {
+      border: 1px solid var(--border);
+      background: #0a1423;
+      padding: 15px;
+
+      box-shadow: 0 30px 80px rgba(0,0,0,.25);
+    }
+
+    .browser-bar {
+      display: flex;
+      gap: 6px;
+      padding-bottom: 14px;
+    }
+
+    .browser-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+    }
+
+    .dashboard {
+      border: 1px solid rgba(255,255,255,.06);
+      padding: 22px;
+    }
+
+    .dashboard-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      padding-bottom: 18px;
+    }
+
+    .dashboard-title {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 27px;
+    }
+
+    .dashboard-small {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .dashboard-card {
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.025);
+    }
+
+    .dashboard-card span {
+      color: var(--muted);
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-card strong {
+      display: block;
+      margin-top: 7px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 22px;
+      color: var(--gold-light);
+    }
+
+    /* =========================
+       RESEARCH
+    ========================= */
+
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .research-card {
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,.08);
+      transition: .25s ease;
+    }
+
+    .research-card:hover {
+      border-color: var(--border);
+    }
+
+    .research-card h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 27px;
+    }
+
+    .research-card p {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .research-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--gold-light);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    /* =========================
+       DISCLAIMER
+    ========================= */
+
+    .disclaimer {
+      max-width: 800px;
+      margin: auto;
+
+      padding: 25px;
+
+      border: 1px solid var(--border);
+      background: rgba(214,173,92,.035);
+
+      text-align: center;
+    }
+
+    .disclaimer strong {
+      color: var(--gold-light);
+      font-size: 12px;
+    }
+
+    .disclaimer p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 55px 28px;
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: auto;
+
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      align-items: flex-start;
+    }
+
+    .footer-brand p {
+      margin-top: 12px;
+      color: var(--muted);
+      max-width: 380px;
+      font-size: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 25px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold-light);
+    }
+
+    .copyright {
+      max-width: var(--max-width);
+      margin: 40px auto 0;
+      padding-top: 20px;
+
+      border-top: 1px solid rgba(255,255,255,.06);
+
+      color: #687384;
+      font-size: 10px;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 1000px) {
+      .orbit-system {
+        opacity: .25;
+        right: -180px;
+      }
+
+      .concept-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .calculation-flow {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .flow-arrow {
+        display: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav-links {
+        display: none;
+
+        position: absolute;
+        top: 72px;
+        left: 15px;
+        right: 15px;
+
+        padding: 20px;
+
+        flex-direction: column;
+        align-items: stretch;
+
+        background: rgba(7,17,31,.97);
+        border: 1px solid var(--border);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .menu-button {
+        display: block;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 145px;
+      }
+
+      h1 {
+        font-size: 78px;
+      }
+
+      .orbit-system {
+        display: none;
+      }
+
+      .concept-grid,
+      .research-grid,
+      .feature-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .calculation-flow {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+      }
+
+      .footer-links {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 450px) {
+      h1 {
+        font-size: 64px;
+      }
+
+      .hero-subtitle {
+        font-size: 23px;
+      }
+
+      section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="star-field"></div>
+  <div class="ambient"></div>
+
+  <!-- =========================
+       NAVIGATION
+  ========================== -->
+
+  <nav id="navbar">
+    <div class="nav-container">
+
+      <a href="#" class="brand">
+        <div class="brand-symbol">ॐ</div>
+
+        <div class="brand-text">
+          <strong>JYOTISHA</strong>
+          <span>Indian Knowledge Systems</span>
+        </div>
+      </a>
+
+      <div class="nav-links" id="navLinks">
+        <a href="#about">About</a>
+        <a href="#concepts">Concepts</a>
+        <a href="#calculations">Calculations</a>
+        <a href="#research">Research</a>
+        <a href="#website">Website</a>
+
+        <a href="horoscope.html" class="nav-cta">
+          Generate Horoscope
+        </a>
+      </div>
+
+      <button
+        class="menu-button"
+        id="menuButton"
+        aria-label="Open navigation"
+      >
+        ☰
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- =========================
+       HERO
+  ========================== -->
+
+  <main>
+
+    <section class="hero" id="about">
+
+      <div class="hero-content">
+
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Indian Knowledge Systems · IKS Project
+        </div>
+
+        <h1>
+          JYO<span>TISHA</span>
+        </h1>
+
+        <div class="hero-subtitle">
+          Ancient Indian knowledge,
+          understood through modern engineering.
+        </div>
+
+        <p class="hero-description">
+          An educational and computational exploration of traditional
+          Jyotisha concepts — connecting astronomical calculations,
+          mathematics, cultural knowledge and modern web technology.
+        </p>
+
+        <div class="hero-actions">
+
+          <a
+            href="horoscope.html"
+            class="button button-primary"
+          >
+            Explore Your Horoscope →
+          </a>
+
+          <a
+            href="#calculations"
+            class="button button-secondary"
+          >
+            How It Works
+          </a>
+
+        </div>
+
+      </div>
+
+      <div class="orbit-system">
+
+        <div class="orbit"></div>
+        <div class="orbit"></div>
+        <div class="orbit"></div>
+
+        <div class="sun">☉</div>
+
+        <div class="planet planet-one"></div>
+        <div class="planet planet-two"></div>
+        <div class="planet planet-three"></div>
+
+      </div>
+
+    </section>
+
+    <!-- =========================
+         INTRODUCTION
+    ========================== -->
+
+    <section>
+
+      <div class="section-header">
+
+        <div class="section-label">
+          The Knowledge System
+        </div>
+
+        <h2>
+          Reading the sky through
+          an Indian lens.
+        </h2>
+
+        <p>
+          Jyotisha represents a long-standing Indian tradition involving
+          astronomical observation, calendrical calculation and
+          interpretive systems. This project explores those concepts
+          through a modern computational framework.
+        </p>
+
+      </div>
+
+      <div class="concept-grid" id="concepts">
+
+        <article class="concept-card">
+          <span class="concept-number">01</span>
+
+          <h3>Nakshatra</h3>
+
+          <p>
+            The traditional division of the zodiac into 27 lunar
+            mansions, each spanning 13°20′.
+          </p>
+        </article>
+
+        <article class="concept-card">
+          <span class="concept-number">02</span>
+
+          <h3>Rashi</h3>
+
+          <p>
+            The 360° zodiac is divided into twelve Rashis,
+            each occupying 30°.
+          </p>
+        </article>
+
+        <article class="concept-card">
+          <span class="concept-number">03</span>
+
+          <h3>Panchanga</h3>
+
+          <p>
+            A traditional calendrical framework involving Tithi,
+            Vara, Nakshatra, Yoga and Karana.
+          </p>
+        </article>
+
+        <article class="concept-card">
+          <span class="concept-number">04</span>
+
+          <h3>Grahas</h3>
+
+          <p>
+            Traditional Jyotisha works with nine Grahas,
+            including the lunar nodes Rahu and Ketu.
+          </p>
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- =========================
+         CALCULATIONS
+    ========================== -->
+
+    <section
+      class="calculation-section"
+      id="calculations"
+    >
+
+      <div class="section-header">
+
+        <div class="section-label">
+          Computational Model
+        </div>
+
+        <h2>
+          How was this calculated?
+        </h2>
+
+        <p>
+          The website separates astronomical computation from
+          traditional interpretation instead of treating a horoscope
+          as an unexplained prediction.
+        </p>
+
+      </div>
+
+      <div class="calculation-flow">
+
+        <div class="flow-item">
+          <strong>Birth Data</strong>
+          <span>Date · Time · Place</span>
+        </div>
+
+        <div class="flow-item">
+          <strong>Normalize</strong>
+          <span>Time & Location</span>
+        </div>
+
+        <div class="flow-item">
+          <strong>Calculate</strong>
+          <span>Astronomical Data</span>
+        </div>
+
+        <div class="flow-item">
+          <strong>Longitude</strong>
+          <span>Celestial Position</span>
+        </div>
+
+        <div class="flow-item">
+          <strong>Rashi</strong>
+          <span>12 × 30°</span>
+        </div>
+
+        <div class="flow-item">
+          <strong>Nakshatra</strong>
+          <span>27 × 13°20′</span>
+        </div>
+
+        <div class="flow-item">
+          <strong>Interpret</strong>
+          <span>Traditional Rules</span>
+        </div>
+
+      </div>
+
+      <div class="math-box">
+
+        <div class="math-box-title">
+          Fundamental divisions
+        </div>
+
+        <div class="equations">
+
+          <div class="equation">
+            360° ÷ 12 = 30°
+          </div>
+
+          <div class="equation">
+            360° ÷ 27 = 13°20′
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =========================
+         WEBSITE
+    ========================== -->
+
+    <section id="website">
+
+      <div class="feature-layout">
+
+        <div>
+
+          <div class="section-label">
+            Digital Implementation
+          </div>
+
+          <h2>
+            Ancient concepts,
+            engineered for the web.
+          </h2>
+
+          <p style="color:var(--muted);margin-top:20px;font-size:14px;">
+            Enter birth information and explore a structured
+            representation of traditional Jyotisha concepts.
+          </p>
+
+          <div class="feature-list">
+
+            <div class="feature">
+              <div class="feature-icon">✦</div>
+
+              <div>
+                <strong>Horoscope Generator</strong>
+
+                <p>
+                  Enter birth details and generate a structured
+                  horoscope dashboard.
+                </p>
+              </div>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">◉</div>
+
+              <div>
+                <strong>Interactive Chart</strong>
+
+                <p>
+                  Explore planetary positions, signs and
+                  traditional interpretations.
+                </p>
+              </div>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">∑</div>
+
+              <div>
+                <strong>Calculation Explorer</strong>
+
+                <p>
+                  Understand the mathematical and computational
+                  steps behind the results.
+                </p>
+              </div>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">⌘</div>
+
+              <div>
+                <strong>IKS Research</strong>
+
+                <p>
+                  Learn about Jyotisha, Nakshatras, Rashi,
+                  Panchanga and Indian astronomy.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="margin-top:30px;">
+
+            <a
+              href="horoscope.html"
+              class="button button-primary"
+            >
+              Open Horoscope Generator →
+            </a>
+
+          </div>
+
+        </div>
+
+        <!-- Dashboard preview -->
+
+        <div class="dashboard-preview">
+
+          <div class="browser-bar">
+            <span class="browser-dot"></span>
+            <span class="browser-dot"></span>
+            <span class="browser-dot"></span>
+          </div>
+
+          <div class="dashboard">
+
+            <div class="dashboard-top">
+
+              <div>
+                <div class="dashboard-small">
+                  Horoscope
+                </div>
+
+                <div class="dashboard-title">
+                  Your Jyotisha Profile
+                </div>
+              </div>
+
+              <div class="dashboard-small">
+                Educational
+              </div>
+
+            </div>
+
+            <div class="dashboard-grid">
+
+              <div class="dashboard-card">
+                <span>Rashi</span>
+                <strong>—</strong>
+              </div>
+
+              <div class="dashboard-card">
+                <span>Nakshatra</span>
+                <strong>—</strong>
+              </div>
+
+              <div class="dashboard-card">
+                <span>Lagna</span>
+                <strong>—</strong>
+              </div>
+
+              <div class="dashboard-card">
+                <span>Surya</span>
+                <strong>—</strong>
+              </div>
+
+              <div class="dashboard-card">
+                <span>Chandra</span>
+                <strong>—</strong>
+              </div>
+
+              <div class="dashboard-card">
+                <span>Grahas</span>
+                <strong>09</strong>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =========================
+         RESEARCH
+    ========================== -->
+
+    <section id="research">
+
+      <div class="section-header">
+
+        <div class="section-label">
+          IKS Research
+        </div>
+
+        <h2>
+          Explore the knowledge behind the interface.
+        </h2>
+
+        <p>
+          The website is designed not only to generate results,
+          but also to explain the historical, mathematical and
+          computational ideas behind them.
+        </p>
+
+      </div>
+
+      <div class="research-grid">
+
+        <article class="research-card">
+
+          <h3>History of Jyotisha</h3>
+
+          <p>
+            Explore the historical development of Jyotisha and
+            its relationship with Indian astronomical traditions.
+          </p>
+
+          <a href="research/jyotisha.html" class="research-link">
+            Read Research →
+          </a>
+
+        </article>
+
+        <article class="research-card">
+
+          <h3>Nakshatras</h3>
+
+          <p>
+            Understand the 27 Nakshatra divisions and their
+            mathematical relationship with the zodiac.
+          </p>
+
+          <a href="research/nakshatra.html" class="research-link">
+            Explore →
+          </a>
+
+        </article>
+
+        <article class="research-card">
+
+          <h3>Rashi</h3>
+
+          <p>
+            Learn how the 360° zodiac is traditionally divided
+            into twelve 30° segments.
+          </p>
+
+          <a href="research/rashi.html" class="research-link">
+            Explore →
+          </a>
+
+        </article>
+
+        <article class="research-card">
+
+          <h3>Panchanga</h3>
+
+          <p>
+            Discover the five traditional components used in
+            Panchanga-based calendrical systems.
+          </p>
+
+          <a href="research/panchanga.html" class="research-link">
+            Explore →
+          </a>
+
+        </article>
+
+        <article class="research-card">
+
+          <h3>Indian Astronomy</h3>
+
+          <p>
+            Investigate mathematical and observational traditions
+            within the history of Indian astronomy.
+          </p>
+
+          <a href="research/astronomy.html" class="research-link">
+            Explore →
+          </a>
+
+        </article>
+
+        <article class="research-card">
+
+          <h3>Ancient → Modern</h3>
+
+          <p>
+            Examine how historical knowledge can be represented
+            using algorithms, databases and web technology.
+          </p>
+
+          <a href="research/modern-engineering.html" class="research-link">
+            Explore →
+          </a>
+
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- =========================
+         DISCLAIMER
+    ========================== -->
+
+    <section>
+
+      <div class="disclaimer">
+
+        <strong>
+          EDUCATIONAL & CULTURAL CONTEXT
+        </strong>
+
+        <p>
+          This project presents traditional Jyotisha concepts for
+          educational and cultural exploration. Horoscope
+          interpretations are representations of traditional
+          astrological frameworks and should not be considered
+          scientifically validated predictions.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer>
+
+    <div class="footer-inner">
+
+      <div class="footer-brand">
+
+        <div class="brand">
+
+          <div class="brand-symbol">ॐ</div>
+
+          <div class="brand-text">
+            <strong>JYOTISHA</strong>
+            <span>IKS Project</span>
+          </div>
+
+        </div>
+
+        <p>
+          Exploring the intersection of Indian Knowledge Systems,
+          astronomy, mathematics and modern engineering.
+        </p>
+
+      </div>
+
+      <div class="footer-links">
+
+        <a href="#about">About</a>
+        <a href="#concepts">Concepts</a>
+        <a href="#calculations">Calculations</a>
+        <a href="#research">Research</a>
+        <a href="references.html">References</a>
+
+      </div>
+
+    </div>
+
+    <div class="copyright">
+      © 2026 JYOTISHA IKS Project · Built for educational research.
+    </div>
+
+  </footer>
+
+  <script>
+
+    /* =========================
+       NAVBAR SCROLL EFFECT
+    ========================== */
+
+    const navbar = document.getElementById("navbar");
+
+    window.addEventListener("scroll", () => {
+
+      if (window.scrollY > 30) {
+        navbar.classList.add("scrolled");
+      } else {
+        navbar.classList.remove("scrolled");
+      }
+
+    });
+
+
+    /* =========================
+       MOBILE MENU
+    ========================== */
+
+    const menuButton = document.getElementById("menuButton");
+    const navLinks = document.getElementById("navLinks");
+
+    menuButton.addEventListener("click", () => {
+      navLinks.classList.toggle("active");
+    });
+
+
+    /* Close mobile menu after clicking */
+
+    navLinks.querySelectorAll("a").forEach(link => {
+
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("active");
+      });
+
+    });
+
+  </script>
+
+</body>
+</html>
+```
