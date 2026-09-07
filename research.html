@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AstroGPT research notes on Jyotisha, nakshatras, rashi, Panchanga and Indian astronomy." />
+  <title>Research | AstroGPT</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+  <link rel="shortcut icon" href="/favicon.svg?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --violet: #170d2b; --violet-2: #321957; --blue: #112a58; --gold: #d6ad5c; --light: #fff8e7; --muted: #c9b9d8; --line: rgba(214,173,92,.3); }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--light); background: radial-gradient(circle at 82% 8%, #4f2672 0, var(--violet) 44%); font: 15px/1.7 Inter, sans-serif; }
+    nav { position: sticky; top: 0; z-index: 2; background: rgba(17,42,88,.96); border-bottom: 1px solid rgba(143,180,255,.25); backdrop-filter: blur(18px); }
+    .nav-inner { width: min(1180px, calc(100% - 40px)); margin: auto; min-height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 25px; }
+    .brand { color: var(--light); font: 600 27px "Cormorant Garamond", serif; letter-spacing: .08em; }
+    .brand span { color: var(--gold); }
+    .links { display: flex; gap: 24px; color: #d6def1; font-size: 13px; }
+    .links a:hover, a { color: var(--gold); }
+    main { width: min(1040px, calc(100% - 40px)); margin: auto; padding: 82px 0; }
+    .eyebrow { color: var(--gold); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+    h1, h2 { font-family: "Cormorant Garamond", serif; font-weight: 600; line-height: 1; }
+    h1 { max-width: 720px; margin: 18px 0 25px; font-size: clamp(54px, 9vw, 100px); }
+    .lead { max-width: 680px; color: var(--muted); font-size: 17px; }
+    .research-list { display: grid; gap: 14px; margin-top: 62px; }
+    article { scroll-margin-top: 100px; padding: 28px; border: 1px solid var(--line); background: rgba(50,25,87,.55); }
+    h2 { margin: 0 0 12px; color: var(--gold-light, #f1d38b); font-size: 38px; }
+    article p { max-width: 820px; margin: 0; color: var(--muted); }
+    footer { width: min(1040px, calc(100% - 40px)); margin: auto; padding: 0 0 55px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 680px) { .nav-inner { width: calc(100% - 28px); } .links { gap: 11px; font-size: 11px; } main, footer { width: calc(100% - 28px); } }
+  </style>
+</head>
+<body>
+  <nav><div class="nav-inner"><a class="brand" href="/">Astro<span>GPT</span></a><div class="links"><a href="/#about">About</a><a href="/#concepts">Concepts</a><a href="/#calculations">Calculations</a><a href="/#website">Website</a><a href="research.html">Research</a></div></div></nav>
+  <main>
+    <div class="eyebrow">AstroGPT Research Library</div>
+    <h1>Knowledge behind the horoscope.</h1>
+    <p class="lead">These short research notes place the generator in its historical, mathematical and computational context. They describe traditional frameworks for learning, not scientifically validated predictions.</p>
+    <div class="research-list">
+      <article id="jyotisha"><h2>History of Jyotisha</h2><p>Jyotisha developed alongside Indian calendrical and astronomical traditions. Its early practical work focused on tracking time, seasons, lunar cycles and ritual calendars. Later texts developed systems for modelling celestial positions and interpreting them through cultural frameworks.</p></article>
+      <article id="nakshatras"><h2>Nakshatras</h2><p>The zodiac is divided into 27 lunar mansions, each covering 13°20′ of the ecliptic. The divisions give a finer-grained way to describe the Moon's apparent path and are central to many traditional calendars and interpretive systems.</p></article>
+      <article id="rashi"><h2>Rashi</h2><p>Rashi are twelve 30° divisions of the 360° zodiac. Each division has a Sanskrit name and a commonly used English correspondence. In the generator, the birth date is mapped to a simple educational sign profile.</p></article>
+      <article id="panchanga"><h2>Panchanga</h2><p>Panchanga means five limbs: tithi, vara, nakshatra, yoga and karana. Together they form a traditional calendrical lens for describing a day, combining solar and lunar cycles with weekday and angular relationships.</p></article>
+      <article id="astronomy"><h2>Indian Astronomy</h2><p>Indian astronomical works used mathematical tables, geometric reasoning and observation to calculate planetary and lunar positions. These traditions contributed to timekeeping and calendar-making across many regions and historical periods.</p></article>
+      <article id="modern-engineering"><h2>Ancient to Modern</h2><p>AstroGPT treats historical concepts as structured knowledge: inputs are validated, calculations are made reproducible, and results are returned through a web API. This makes the computational steps inspectable while keeping cultural interpretation clearly labelled.</p></article>
+    </div>
+  </main>
+  <footer>AstroGPT research material is provided for educational and cultural exploration.</footer>
+</body>
+</html>
