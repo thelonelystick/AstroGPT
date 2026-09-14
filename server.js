@@ -1,89 +1,100 @@
-const http = require("http");
-const fs = require("fs");
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
 const path = require("path");
 const { buildHoroscope } = require("./lib/horoscope");
+const { calculateGroupMatches } = require("./lib/compatibility");
+const { SIGNS, NAKSHATRAS } = require("./lib/signsData");
 
+const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = __dirname;
 
-function sendJson(response, status, body) {
-  response.writeHead(status, {
-    "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": "*"
+// Middleware
+app.use(cors());
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static assets
+app.use(express.static(ROOT));
+
+// Health Check
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    framework: "Express.js",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
   });
-  response.end(JSON.stringify(body));
-}
-
-function serveIndex(response) {
-  fs.readFile(path.join(ROOT, "index.html"), (error, content) => {
-    if (error) {
-      sendJson(response, 500, { error: "Unable to load the application" });
-      return;
-    }
-    response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    response.end(content);
-  });
-}
-
-function readJson(request) {
-  return new Promise((resolve, reject) => {
-    let body = "";
-    request.on("data", (chunk) => {
-      body += chunk;
-      if (body.length > 10000) {
-        reject(new Error("Request body is too large"));
-        request.destroy();
-      }
-    });
-    request.on("end", () => {
-      try {
-        resolve(JSON.parse(body || "{}"));
-      } catch {
-        reject(new Error("Request body must be valid JSON"));
-      }
-    });
-    request.on("error", reject);
-  });
-}
-
-const server = http.createServer(async (request, response) => {
-  if (request.method === "OPTIONS") {
-    response.writeHead(204, {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
-    });
-    response.end();
-    return;
-  }
-
-  if (request.method === "GET" && request.url === "/api/health") {
-    sendJson(response, 200, { status: "ok" });
-    return;
-  }
-
-  if (request.method === "POST" && request.url === "/api/horoscope") {
-    try {
-      const result = buildHoroscope(await readJson(request));
-      if (result.error) {
-        sendJson(response, 400, result);
-        return;
-      }
-      sendJson(response, 200, result);
-    } catch (error) {
-      sendJson(response, 400, { error: error.message });
-    }
-    return;
-  }
-
-  if (request.method === "GET" && request.url === "/") {
-    serveIndex(response);
-    return;
-  }
-
-  sendJson(response, 404, { error: "Not found" });
 });
 
-server.listen(PORT, () => {
-  console.log(`AstroGPT backend listening at http://localhost:${PORT}`);
+// Firebase Public Client Config
+app.get("/api/firebase-config", (req, res) => {
+  res.json({
+    apiKey: process.env.FIREBASE_API_KEY || "AIzaSyD1vyZyXapmfdOyqTgctbJob--s645NcrA",
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN || "astrogpt-da2e2.firebaseapp.com",
+    projectId: process.env.FIREBASE_PROJECT_ID || "astrogpt-da2e2",
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "astrogpt-da2e2.firebasestorage.app",
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "480223079656",
+    appId: process.env.FIREBASE_APP_ID || "1:480223079656:web:7367df27d43956b782ed5d",
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID || "G-X3MCKV2FYY"
+  });
 });
+
+// Full Signs & Nakshatras Dataset
+app.get("/api/signs", (req, res) => {
+  res.json({ signs: SIGNS, nakshatras: NAKSHATRAS });
+});
+
+// Generate Horoscope
+app.post("/api/horoscope", (req, res) => {
+  try {
+    const result = buildHoroscope(req.body);
+    if (result.error) {
+      return res.status(400).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message || "Failed to generate horoscope" });
+  }
+});
+
+// Multi-Person "It's a Match" Compatibility API
+app.post("/api/match", (req, res) => {
+  try {
+    const people = req.body.people || req.body;
+    const result = calculateGroupMatches(people);
+    if (result.error) {
+      return res.status(400).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message || "Failed to calculate compatibility match" });
+  }
+});
+
+// HTML page routing
+app.get("/match", (req, res) => {
+  res.sendFile(path.join(ROOT, "match.html"));
+});
+app.get("/horoscope", (req, res) => {
+  res.sendFile(path.join(ROOT, "horoscope.html"));
+});
+app.get("/signs", (req, res) => {
+  res.sendFile(path.join(ROOT, "signs.html"));
+});
+app.get("/research", (req, res) => {
+  res.sendFile(path.join(ROOT, "research.html"));
+});
+
+// Default 404
+app.use((req, res) => {
+  res.status(404).json({ error: "Endpoint not found" });
+});
+
+const server = app.listen(PORT, () => {
+  console.log(`[AstroGPT Backend] Express server running at http://localhost:${PORT}`);
+  console.log(`[Firebase] Configured with project: ${process.env.FIREBASE_PROJECT_ID || 'astrogpt-da2e2'}`);
+});
+
+module.exports = { app, server };

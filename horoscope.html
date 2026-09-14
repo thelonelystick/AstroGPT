@@ -5,93 +5,353 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Horoscope Generator | AstroGPT</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
-  <link rel="icon" href="/favicon.svg?v=2" sizes="any" />
-  <link rel="shortcut icon" href="/favicon.svg?v=2" />
-  <link rel="apple-touch-icon" href="/favicon.svg?v=2" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/animations.css" />
   <style>
-    :root { --navy: #170d2b; --panel: #321957; --gold: #d6ad5c; --light: #fff8e7; --muted: #c9b9d8; --line: rgba(214,173,92,.3); }
+    :root {
+      --navy: #170d2b;
+      --navy-dark: #0f071d;
+      --panel: rgba(50, 25, 87, 0.65);
+      --gold: #d6ad5c;
+      --gold-light: #f1d38b;
+      --light: #fff8e7;
+      --muted: #c9b9d8;
+      --line: rgba(214, 173, 92, 0.3);
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; color: var(--light); background: radial-gradient(circle at 85% 10%, #4f2672 0, var(--navy) 42%); font: 15px/1.6 Inter, sans-serif; }
-    nav { position: sticky; top: 0; z-index: 2; background: rgba(37,16,68,.98); border-bottom: 1px solid rgba(214,173,92,.3); backdrop-filter: blur(18px); }
-    .nav-inner { width: min(1080px, calc(100% - 40px)); min-height: 74px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--light); font: 600 27px "Cormorant Garamond", serif; letter-spacing: .08em; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--light);
+      background: radial-gradient(circle at 85% 10%, #4f2672 0%, var(--navy) 42%, var(--navy-dark) 100%);
+      font: 15px/1.6 Inter, sans-serif;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(37,16,68,.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+    }
+    .nav-inner {
+      width: min(1180px, calc(100% - 40px));
+      min-height: 74px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--light);
+      font: 600 27px "Cormorant Garamond", serif;
+      letter-spacing: .08em;
+      text-decoration: none;
+    }
     .brand span { color: var(--gold); }
-    .brand-icon { width: 38px; height: 38px; border: 1px solid var(--gold); border-radius: 50%; box-shadow: 0 0 0 4px rgba(214,173,92,.06), 0 0 24px rgba(214,173,92,.2); }
-    .nav-links { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 12px; }
-    .nav-links a { color: inherit; text-decoration: none; }
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(214,173,92,.2);
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .nav-links a { color: #d6def1; text-decoration: none; transition: color 0.2s; }
     .nav-links a:hover { color: var(--gold); }
-    .nav-cta { padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px; }
-    main { width: min(1080px, calc(100% - 40px)); margin: auto; padding: 48px 0 72px; }
+    .nav-cta {
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--gold-light) !important;
+    }
+    main {
+      width: min(1180px, calc(100% - 40px));
+      margin: auto;
+      padding: 48px 0 80px;
+    }
     a { color: var(--gold); text-decoration: none; }
-    .back { display: inline-block; margin-bottom: 48px; font-size: 13px; }
-    h1, h2 { font-family: "Cormorant Garamond", serif; font-weight: 600; }
-    h1 { margin: 0; font-size: clamp(52px, 8vw, 92px); line-height: .9; }
-    .intro { max-width: 600px; margin: 22px 0 42px; color: var(--muted); }
-    .layout { display: grid; grid-template-columns: minmax(260px, .75fr) 1.25fr; gap: 18px; align-items: start; }
-    .panel { padding: 28px; border: 1px solid var(--line); background: rgba(16,31,52,.78); }
-    form { display: grid; gap: 17px; }
-    label { display: grid; gap: 7px; color: var(--muted); font-size: 12px; }
-    input { width: 100%; padding: 12px; border: 1px solid rgba(214,173,92,.28); background: #170d2b; color: var(--light); font: inherit; }
-    button { padding: 13px 18px; border: 1px solid var(--gold); background: var(--gold); color: #10151c; font: 600 13px Inter, sans-serif; cursor: pointer; }
-    button:disabled { opacity: .6; cursor: wait; }
-    .status { min-height: 24px; margin-top: 16px; color: var(--muted); font-size: 13px; }
+    .back { display: inline-block; margin-bottom: 30px; font-size: 13px; }
+    h1 {
+      margin: 0;
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 600;
+      font-size: clamp(50px, 8vw, 92px);
+      line-height: .92;
+    }
+    h1 span { color: var(--gold-light); }
+    .intro {
+      max-width: 680px;
+      margin: 20px 0 40px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.85fr) 1.25fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .panel {
+      padding: 32px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    form { display: grid; gap: 18px; }
+    label { display: grid; gap: 7px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(214,173,92,.28);
+      background: rgba(15, 7, 29, 0.85);
+      border-radius: 8px;
+      color: var(--light);
+      font: inherit;
+      font-size: 14px;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(214,173,92,.3);
+    }
+    button[type="submit"] {
+      padding: 14px 22px;
+      border: 1px solid var(--gold);
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--gold), #c49539);
+      color: #10151c;
+      font: 600 14px Inter, sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(214, 173, 92, 0.35);
+      transition: all 0.25s ease;
+    }
+    button[type="submit"]:hover {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      transform: translateY(-2px);
+    }
+    button:disabled { opacity: .6; cursor: wait; transform: none !important; }
+    .status { min-height: 24px; margin-top: 14px; color: var(--muted); font-size: 13px; }
     .results { display: none; }
-    .results.visible { display: block; }
-    .results h2 { margin: 0 0 18px; font-size: 38px; }
-    .daily { margin-bottom: 22px; padding: 18px; border-left: 2px solid var(--gold); background: rgba(214,173,92,.08); }
-    .daily h3 { margin: 0 0 7px; color: var(--gold); font: 600 24px "Cormorant Garamond", serif; }
-    .daily p { margin: 0; color: var(--light); }
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
-    .metric { padding: 15px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.035); }
+    .results.visible { display: block; animation: slideFadeIn 0.5s ease-out; }
+    .results h2 {
+      margin: 0 0 16px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 38px;
+      color: var(--gold-light);
+    }
+    .sign-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(214,173,92,.12);
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .daily {
+      margin-bottom: 24px;
+      padding: 20px;
+      border-left: 3px solid var(--gold);
+      background: rgba(214,173,92,.08);
+      border-radius: 0 10px 10px 0;
+    }
+    .daily h3 {
+      margin: 0 0 6px;
+      color: var(--gold);
+      font: 600 22px "Cormorant Garamond", serif;
+    }
+    .daily p { margin: 0; color: var(--light); font-size: 14px; line-height: 1.6; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .metric {
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+    }
     .metric span { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
-    .metric strong { display: block; margin-top: 7px; color: var(--gold); font-family: "Cormorant Garamond", serif; font-size: 22px; }
-    .interpretation { margin-top: 22px; color: var(--muted); }
-    @media (max-width: 720px) { .nav-inner { width: calc(100% - 28px); } .nav-links a:not(.nav-cta) { display: none; } main { width: min(100% - 28px, 560px); padding-top: 28px; } .back { margin-bottom: 34px; } .layout { grid-template-columns: 1fr; } .grid { grid-template-columns: repeat(2, 1fr); } }
+    .metric strong { display: block; margin-top: 6px; color: var(--gold); font-family: "Cormorant Garamond", serif; font-size: 20px; }
+    .traits-box {
+      margin: 18px 0;
+      padding: 16px;
+      border: 1px solid rgba(214,173,92,.2);
+      border-radius: 10px;
+      background: rgba(23,13,43,.5);
+    }
+    .traits-box strong { color: var(--gold-light); font-size: 13px; }
+    .traits-box p { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .interpretation { margin-top: 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .match-cta-box {
+      margin-top: 24px;
+      padding: 18px;
+      background: radial-gradient(circle at center, rgba(168,85,247,.15) 0%, rgba(37,16,68,.3) 100%);
+      border: 1px solid rgba(168,85,247,.35);
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .history-section {
+      margin-top: 50px;
+      border-top: 1px solid var(--line);
+      padding-top: 30px;
+    }
+    .history-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .history-card:hover { background: rgba(255,255,255,.06); }
+    @media (max-width: 760px) {
+      .nav-inner { width: calc(100% - 28px); }
+      .nav-links a:not(.nav-cta) { display: none; }
+      main { width: calc(100% - 28px); }
+      .layout { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <nav><div class="nav-inner"><a class="brand" href="/"><img class="brand-icon" src="/favicon.svg?v=2" alt="AstroGPT logo" />Astro<span>GPT</span></a><div class="nav-links"><a href="/#about">About</a><a href="/signs.html">It's a Sign</a><a href="/research.html">Research</a><a class="nav-cta" href="/horoscope.html">Generate Horoscope</a></div></div></nav>
+  <nav>
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <img class="brand-icon" src="/favicon.svg?v=2" alt="AstroGPT logo" />
+        Astro<span>GPT</span>
+      </a>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="/#about">About</a>
+          <a href="/signs.html">It's a Sign</a>
+          <a href="/research.html">Research</a>
+          <a href="/horoscope.html" class="active" style="color: var(--gold-light);">Horoscope</a>
+          <a href="/match.html" class="nav-cta">It's a Match</a>
+        </div>
+        <div id="authContainer"></div>
+      </div>
+    </div>
+  </nav>
+
   <main>
-    <a class="back" href="/">← Back to AstroGPT</a>
+    <a class="back" href="/">← Back to AstroGPT Home</a>
     <h1>Horoscope<br><span>Generator</span></h1>
-    <p class="intro">Enter birth details to generate a structured, educational Jyotisha profile.</p>
+    <p class="intro">Enter birth details to calculate your authentic birth sign, Vedic Jyotisha Rashi, Nakshatra, and Lagna. Data is automatically recorded to your cloud account.</p>
+
     <div class="layout">
+      <!-- Input Panel -->
       <section class="panel">
         <form id="horoscopeForm">
-          <label>Name <input name="name" type="text" placeholder="Your name" minlength="2" autocomplete="name" required /></label>
-          <label>Birth date <input name="birthDate" type="date" required /></label>
-          <label>Birth time <input name="birthTime" type="time" required /></label>
-          <label>Birth location <input name="location" type="text" placeholder="New Delhi" minlength="2" required /></label>
-          <button type="submit">Generate profile</button>
+          <label>Full Name
+            <input name="name" type="text" placeholder="Your name" minlength="2" autocomplete="name" required />
+          </label>
+          <label>Birth Date
+            <input name="birthDate" type="date" required />
+          </label>
+          <label>Birth Time
+            <input name="birthTime" type="time" value="12:00" required />
+          </label>
+          <label>Birth Location
+            <input name="location" type="text" placeholder="e.g. New Delhi" minlength="2" required />
+          </label>
+          <button type="submit" id="generateBtn">✨ Generate Profile & Save to Cloud</button>
         </form>
         <div class="status" id="status" role="status"></div>
       </section>
+
+      <!-- Results Panel -->
       <section class="panel results" id="results" aria-live="polite">
+        <div class="sign-badge" id="signBadge">♈ Aries (Mesha) · Fire</div>
         <h2 id="profileTitle">Your Jyotisha Profile</h2>
+
         <div class="daily">
-          <h3>Today's guidance <span id="dailyDate"></span></h3>
+          <h3>Today's Guidance <span id="dailyDate"></span></h3>
           <p id="dailyReading"></p>
         </div>
+
         <div class="grid" id="metrics"></div>
+
+        <div class="traits-box">
+          <strong>Key Strengths & Growth:</strong>
+          <p id="traitsDescription"></p>
+        </div>
+
         <p class="interpretation" id="interpretation"></p>
+
+        <!-- "It's a Match" Integration Callout -->
+        <div class="match-cta-box">
+          <div>
+            <strong style="color: var(--gold-light); font-size: 14px;">Want to see your compatibility?</strong>
+            <p style="color: var(--muted); font-size: 12px; margin: 4px 0 0;">Compare this profile with friends, partners, or colleagues!</p>
+          </div>
+          <a href="/match.html" class="nav-cta" style="font-size: 12px;">Test in "It's a Match" →</a>
+        </div>
       </section>
     </div>
+
+    <!-- History Drawer -->
+    <section class="history-section">
+      <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--gold); margin-bottom: 16px;">
+        Saved Cloud Horoscopes
+      </h3>
+      <div id="horoscopeHistoryList">
+        <p style="font-size: 13px; color: var(--muted);">Loading cloud records...</p>
+      </div>
+    </section>
   </main>
-  <script>
+
+  <script type="module">
+    import { astroFirebase, setupAuthUI } from "/firebase-app.js";
+
+    // Setup Auth UI in nav
+    const authContainer = document.getElementById("authContainer");
+    setupAuthUI(authContainer);
+
     const form = document.getElementById("horoscopeForm");
     const status = document.getElementById("status");
     const results = document.getElementById("results");
     const metrics = document.getElementById("metrics");
     const interpretation = document.getElementById("interpretation");
     const profileTitle = document.getElementById("profileTitle");
+    const signBadge = document.getElementById("signBadge");
     const dailyDate = document.getElementById("dailyDate");
     const dailyReading = document.getElementById("dailyReading");
-    const savedProfile = localStorage.getItem("astrogpt-horoscope");
+    const traitsDescription = document.getElementById("traitsDescription");
+    const generateBtn = document.getElementById("generateBtn");
+    const horoscopeHistoryList = document.getElementById("horoscopeHistoryList");
 
+    // Load saved local profile if present
+    const savedProfile = localStorage.getItem("astrogpt-horoscope");
     if (savedProfile) {
       try {
         const saved = JSON.parse(savedProfile);
@@ -100,44 +360,96 @@
           if (field) field.value = value;
         });
         if (saved.result) renderResult(saved.result);
-      } catch {
+      } catch (e) {
         localStorage.removeItem("astrogpt-horoscope");
       }
     }
 
     function renderResult(data) {
-      profileTitle.textContent = `${data.birthDetails.name}'s Jyotisha Profile`;
+      profileTitle.textContent = `${data.birthDetails.name}'s Cosmic Profile`;
+      signBadge.textContent = `${data.profile.sunSign} · ${data.sign ? data.sign.element : 'Zodiac'}`;
       dailyDate.textContent = `· ${data.dailyHoroscope.date}`;
       dailyReading.textContent = data.dailyHoroscope.reading;
-      metrics.innerHTML = Object.entries(data.profile).map(([key, value]) => `<div class="metric"><span>${key}</span><strong>${value}</strong></div>`).join("");
+
+      if (data.sign) {
+        traitsDescription.innerHTML = `<strong>Strengths:</strong> ${data.sign.strengths} <br><span style="margin-top: 4px; display:inline-block;"><strong>Growth Edge:</strong> ${data.sign.growthEdge}</span>`;
+      }
+
+      metrics.innerHTML = Object.entries(data.profile).map(([key, value]) => `
+        <div class="metric">
+          <span>${key.replace(/([A-Z])/g, ' $1')}</span>
+          <strong>${value}</strong>
+        </div>
+      `).join("");
+
       interpretation.textContent = data.interpretation;
       results.classList.add("visible");
     }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const button = form.querySelector("button");
-      button.disabled = true;
-      status.textContent = "Calculating profile...";
+      generateBtn.disabled = true;
+      status.innerHTML = `<span class="celestial-loader" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 6px;"></span> Calculating authentic birth sign and planetary chords...`;
+
       try {
+        const payload = Object.fromEntries(new FormData(form));
         const response = await fetch("/api/horoscope", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(Object.fromEntries(new FormData(form)))
+          body: JSON.stringify(payload)
         });
+
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Unable to generate profile");
-        const input = Object.fromEntries(new FormData(form));
-        localStorage.setItem("astrogpt-horoscope", JSON.stringify({ input, result: data }));
+
+        localStorage.setItem("astrogpt-horoscope", JSON.stringify({ input: payload, result: data }));
         renderResult(data);
-        status.textContent = "Profile generated.";
+
+        // Cloud Firestore persistence
+        const saveRes = await astroFirebase.saveHoroscope(data);
+        if (saveRes.cloudSynced) {
+          status.innerHTML = `<span style="color: #4ade80;">✓ Profile generated & synced to your Cloud Account!</span>`;
+        } else {
+          status.innerHTML = `<span style="color: var(--gold-light);">✓ Profile generated & saved locally. (Sign in with Google for full Cloud Sync)</span>`;
+        }
+
+        refreshHoroscopeHistory();
+
       } catch (error) {
         status.textContent = error.message;
         results.classList.remove("visible");
       } finally {
-        button.disabled = false;
+        generateBtn.disabled = false;
       }
     });
+
+    async function refreshHoroscopeHistory() {
+      const records = await astroFirebase.getHoroscopes();
+      if (!records || records.length === 0) {
+        horoscopeHistoryList.innerHTML = `<p style="font-size: 13px; color: var(--muted);">No past horoscopes recorded yet.</p>`;
+        return;
+      }
+      horoscopeHistoryList.innerHTML = records.map(r => `
+        <div class="history-card" onclick="window.renderHistoryRecord('${encodeURIComponent(JSON.stringify(r))}')">
+          <div>
+            <strong style="color: var(--gold-light);">${r.birthDetails.name}</strong>
+            <span style="font-size: 12px; color: var(--muted); margin-left: 8px;">(${r.profile.sunSign})</span>
+            <div style="font-size: 11px; color: #a855f7; margin-top: 3px;">${r.birthDetails.location} · ${r.birthDetails.date}</div>
+          </div>
+          <span style="font-size: 12px; color: var(--gold); border: 1px solid var(--line); padding: 4px 10px; border-radius: 999px;">View</span>
+        </div>
+      `).join("");
+    }
+
+    window.renderHistoryRecord = (encoded) => {
+      try {
+        const record = JSON.parse(decodeURIComponent(encoded));
+        renderResult(record);
+        results.scrollIntoView({ behavior: "smooth" });
+      } catch (e) {}
+    };
+
+    refreshHoroscopeHistory();
   </script>
 </body>
 </html>
