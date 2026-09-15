@@ -169,11 +169,37 @@
       color: var(--light);
       font: 500 12px Inter, sans-serif;
     }
+    .sign {
+      cursor: pointer;
+    }
+    .sign.selected {
+      border-color: var(--gold);
+      box-shadow: 0 8px 24px rgba(214,173,92,.18);
+    }
     .sign p {
       margin: 8px 0 0;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.5;
+    }
+    .sign .meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .sign .chip {
+      font-size: 10px;
+      color: var(--gold-light);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 8px;
+    }
+    .sign-status {
+      margin-top: 18px;
+      color: var(--gold);
+      font-size: 12px;
+      min-height: 18px;
     }
     .legend {
       display: flex;
@@ -213,8 +239,8 @@
           <a href="/#about">About</a>
           <a href="/signs.html" class="active" style="color: var(--gold-light);">It's a Sign</a>
           <a href="/research.html">Research</a>
-          <a href="/horoscope.html">Horoscope</a>
-          <a class="nav-cta" href="/match.html">It's a Match</a>
+          <a class="nav-cta" href="/horoscope.html">It's a Match</a>
+          <a href="/match.html">Horoscope Chart</a>
         </div>
         <div id="authContainer"></div>
       </div>
@@ -224,103 +250,16 @@
   <main>
     <div class="eyebrow">The Sign Atlas & Astrological Chart</div>
     <h1>Every sign has a place in the sky.</h1>
-    <p class="lead">Explore the four classical elemental factions, their twelve Western zodiac birth signs, and corresponding Vedic Jyotisha Rashis with verified calendar dates and ruling Grahas.</p>
+    <p class="lead">Explore the four elemental factions with tropical Western dates, sidereal Jyotisha Rashi ranges, ruling Grahas, lucky markers, and Nakshatras from the live AstroGPT dataset.</p>
+    <p class="sign-status" id="signStatus">Loading sign atlas…</p>
 
-    <section class="flowchart" aria-label="Zodiac sign flowchart">
-      <!-- FIRE -->
-      <div class="flow-row">
-        <div class="faction">
-          <h2>Fire</h2>
-          <p>Agni · Drive · Will · Radiant Life</p>
-        </div>
-        <div class="signs">
-          <article class="sign">
-            <h3>♈ Aries <span>· Mesha</span></h3>
-            <p>Cardinal · Mars (Mangala) · <strong>March 21 – April 19</strong><br>Pioneering courage, dynamic initiative, primal spark.</p>
-          </article>
-          <article class="sign">
-            <h3>♌ Leo <span>· Simha</span></h3>
-            <p>Fixed · Sun (Surya) · <strong>July 23 – August 22</strong><br>Regal warmth, creative sovereignty, magnanimous heart.</p>
-          </article>
-          <article class="sign">
-            <h3>♐ Sagittarius <span>· Dhanu</span></h3>
-            <p>Mutable · Jupiter (Guru) · <strong>November 22 – December 21</strong><br>Philosophical exploration, expansive faith, high wisdom.</p>
-          </article>
-        </div>
-      </div>
-
-      <!-- EARTH -->
-      <div class="flow-row">
-        <div class="faction">
-          <h2>Earth</h2>
-          <p>Prithvi · Form · Grounding · Mastery</p>
-        </div>
-        <div class="signs">
-          <article class="sign">
-            <h3>♉ Taurus <span>· Vrishabha</span></h3>
-            <p>Fixed · Venus (Shukra) · <strong>April 20 – May 20</strong><br>Steadfast resilience, sensual craft, lasting foundations.</p>
-          </article>
-          <article class="sign">
-            <h3>♍ Virgo <span>· Kanya</span></h3>
-            <p>Mutable · Mercury (Budha) · <strong>August 23 – September 22</strong><br>Precise discernment, selfless service, sacred healing.</p>
-          </article>
-          <article class="sign">
-            <h3>♑ Capricorn <span>· Makara</span></h3>
-            <p>Cardinal · Saturn (Shani) · <strong>December 22 – January 19</strong><br>Architectural patience, disciplined fortitude, mastery over time.</p>
-          </article>
-        </div>
-      </div>
-
-      <!-- AIR -->
-      <div class="flow-row">
-        <div class="faction">
-          <h2>Air</h2>
-          <p>Vayu · Intellect · Connection · Vision</p>
-        </div>
-        <div class="signs">
-          <article class="sign">
-            <h3>♊ Gemini <span>· Mithuna</span></h3>
-            <p>Mutable · Mercury (Budha) · <strong>May 21 – June 20</strong><br>Quick-witted exchange, multidimensional curiosity, bridging minds.</p>
-          </article>
-          <article class="sign">
-            <h3>♎ Libra <span>· Tula</span></h3>
-            <p>Cardinal · Venus (Shukra) · <strong>September 23 – October 22</strong><br>Equilibrium, diplomatic grace, aesthetic and social harmony.</p>
-          </article>
-          <article class="sign">
-            <h3>♒ Aquarius <span>· Kumbha</span></h3>
-            <p>Fixed · Saturn & Rahu · <strong>January 20 – February 18</strong><br>Visionary brotherhood, universal humanitarian ideals, innovation.</p>
-          </article>
-        </div>
-      </div>
-
-      <!-- WATER -->
-      <div class="flow-row">
-        <div class="faction">
-          <h2>Water</h2>
-          <p>Jala · Emotion · Intuition · Transcendence</p>
-        </div>
-        <div class="signs">
-          <article class="sign">
-            <h3>♋ Cancer <span>· Karka</span></h3>
-            <p>Cardinal · Moon (Chandra) · <strong>June 21 – July 22</strong><br>Sanctuary, deep emotional tides, protective nurturing memory.</p>
-          </article>
-          <article class="sign">
-            <h3>♏ Scorpio <span>· Vrishchika</span></h3>
-            <p>Fixed · Mars & Ketu · <strong>October 23 – November 21</strong><br>Penetrating perception, regenerative depth, transformative alchemy.</p>
-          </article>
-          <article class="sign">
-            <h3>♓ Pisces <span>· Meena</span></h3>
-            <p>Mutable · Jupiter (Guru) · <strong>February 19 – March 20</strong><br>Cosmic empathy, transcendent reverie, poetic dissolution of bounds.</p>
-          </article>
-        </div>
-      </div>
-    </section>
+    <section class="flowchart" id="signFlowchart" aria-label="Zodiac sign flowchart"></section>
 
     <div class="legend">
-      <span><strong>Birth Sign Dates:</strong> Verified standard astronomical ranges</span>
-      <span><strong>Jyotisha:</strong> Sanskrit Rashi names</span>
-      <span><strong>Grahas:</strong> Planetary guardians</span>
-      <span><strong>Compatibility:</strong> Synastry engine ready in <a href="/match.html">It's a Match</a></span>
+      <span><strong>Tropical dates:</strong> Western sun-sign calendar</span>
+      <span><strong>Sidereal dates:</strong> Approximate Lahiri Rashi ranges</span>
+      <span><strong>Jyotisha:</strong> Sanskrit Rashi names and Nakshatras</span>
+      <span><strong>Compatibility:</strong> Synastry engine in <a href="/match.html">Horoscope Chart</a></span>
     </div>
   </main>
 
@@ -329,8 +268,99 @@
   </footer>
 
   <script type="module">
-    import { setupAuthUI } from "/firebase-app.js";
+    import { astroFirebase, setupAuthUI } from "/firebase-app.js";
     setupAuthUI(document.getElementById("authContainer"));
+
+    const ELEMENT_COPY = {
+      Fire: "Agni · Drive · Will · Radiant Life",
+      Earth: "Prithvi · Form · Grounding · Mastery",
+      Air: "Vayu · Intellect · Connection · Vision",
+      Water: "Jala · Emotion · Intuition · Transcendence"
+    };
+
+    const flowchart = document.getElementById("signFlowchart");
+    const status = document.getElementById("signStatus");
+    let signsById = {};
+
+    function renderSigns(signs) {
+      const order = ["Fire", "Earth", "Air", "Water"];
+      flowchart.innerHTML = order.map((element) => {
+        const group = signs.filter((sign) => sign.element === element);
+        return `
+          <div class="flow-row">
+            <div class="faction">
+              <h2>${element}</h2>
+              <p>${ELEMENT_COPY[element]}</p>
+            </div>
+            <div class="signs">
+              ${group.map((sign) => `
+                <article class="sign" data-sign-id="${sign.id}" tabindex="0" role="button" aria-label="${sign.name}">
+                  <h3>${sign.glyph} ${sign.name} <span>· ${sign.sanskrit}</span></h3>
+                  <p>${sign.modality} · ${sign.ruler} (${sign.vedicRuler})<br>
+                    <strong>Tropical:</strong> ${sign.dateRange}<br>
+                    <strong>Sidereal:</strong> ${sign.vedicDateRange}
+                  </p>
+                  <p>${sign.summary}</p>
+                  <div class="meta">
+                    <span class="chip">${sign.luckyDay}</span>
+                    <span class="chip">${sign.luckyGem}</span>
+                    <span class="chip">${sign.luckyColor}</span>
+                    <span class="chip">No. ${sign.luckyNumber}</span>
+                    ${(sign.nakshatras || []).map((n) => `<span class="chip">${n.name}</span>`).join("")}
+                  </div>
+                </article>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function selectSign(signId) {
+      const sign = signsById[signId];
+      if (!sign) return;
+      flowchart.querySelectorAll(".sign").forEach((card) => {
+        card.classList.toggle("selected", card.dataset.signId === signId);
+      });
+      status.textContent = `Saving ${sign.name} (${sign.sanskrit})…`;
+      const saveRes = await astroFirebase.saveSign({
+        id: sign.id,
+        name: sign.name,
+        sanskrit: sign.sanskrit,
+        glyph: sign.glyph,
+        element: sign.element,
+        dateRange: sign.dateRange,
+        vedicDateRange: sign.vedicDateRange,
+        ruler: sign.ruler,
+        vedicRuler: sign.vedicRuler
+      });
+      status.textContent = saveRes.saved
+        ? `Saved ${sign.name} · ${sign.sanskrit}`
+        : `Saved ${sign.name} on this device`;
+    }
+
+    try {
+      const res = await fetch("/api/signs");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Unable to load signs");
+      (data.signs || []).forEach((sign) => { signsById[sign.id] = sign; });
+      renderSigns(data.signs || []);
+      status.textContent = "Tap a sign to save it to your account.";
+
+      flowchart.addEventListener("click", (event) => {
+        const card = event.target.closest(".sign");
+        if (card) selectSign(card.dataset.signId);
+      });
+      flowchart.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const card = event.target.closest(".sign");
+        if (!card) return;
+        event.preventDefault();
+        selectSign(card.dataset.signId);
+      });
+    } catch (err) {
+      status.textContent = err.message;
+    }
   </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Horoscope Generator | AstroGPT</title>
+  <title>It's a Match | AstroGPT</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -255,8 +255,8 @@
           <a href="/#about">About</a>
           <a href="/signs.html">It's a Sign</a>
           <a href="/research.html">Research</a>
-          <a href="/horoscope.html" class="active" style="color: var(--gold-light);">Horoscope</a>
-          <a href="/match.html" class="nav-cta">It's a Match</a>
+          <a href="/horoscope.html" class="nav-cta active" style="color: var(--gold-light);">It's a Match</a>
+          <a href="/match.html">Horoscope Chart</a>
         </div>
         <div id="authContainer"></div>
       </div>
@@ -265,8 +265,8 @@
 
   <main>
     <a class="back" href="/">← Back to AstroGPT Home</a>
-    <h1>Horoscope<br><span>Generator</span></h1>
-    <p class="intro">Enter birth details to calculate your authentic birth sign, Vedic Jyotisha Rashi, Nakshatra, and Lagna. Data is automatically recorded to your cloud account.</p>
+    <h1>It's a<br><span>Match</span></h1>
+    <p class="intro">Enter birth details to calculate your authentic birth sign, Vedic Jyotisha Rashi, Nakshatra, and Lagna. Results are saved automatically.</p>
 
     <div class="layout">
       <!-- Input Panel -->
@@ -284,7 +284,7 @@
           <label>Birth Location
             <input name="location" type="text" placeholder="e.g. New Delhi" minlength="2" required />
           </label>
-          <button type="submit" id="generateBtn">✨ Generate Profile & Save to Cloud</button>
+          <button type="submit" id="generateBtn">✨ Generate Profile</button>
         </form>
         <div class="status" id="status" role="status"></div>
       </section>
@@ -314,7 +314,7 @@
             <strong style="color: var(--gold-light); font-size: 14px;">Want to see your compatibility?</strong>
             <p style="color: var(--muted); font-size: 12px; margin: 4px 0 0;">Compare this profile with friends, partners, or colleagues!</p>
           </div>
-          <a href="/match.html" class="nav-cta" style="font-size: 12px;">Test in "It's a Match" →</a>
+          <a href="/match.html" class="nav-cta" style="font-size: 12px;">Open Horoscope Chart →</a>
         </div>
       </section>
     </div>
@@ -322,10 +322,10 @@
     <!-- History Drawer -->
     <section class="history-section">
       <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--gold); margin-bottom: 16px;">
-        Saved Cloud Horoscopes
+        Saved Horoscopes
       </h3>
       <div id="horoscopeHistoryList">
-        <p style="font-size: 13px; color: var(--muted);">Loading cloud records...</p>
+        <p style="font-size: 13px; color: var(--muted);">Loading saved records...</p>
       </div>
     </section>
   </main>
@@ -405,12 +405,11 @@
         localStorage.setItem("astrogpt-horoscope", JSON.stringify({ input: payload, result: data }));
         renderResult(data);
 
-        // Cloud Firestore persistence
         const saveRes = await astroFirebase.saveHoroscope(data);
-        if (saveRes.cloudSynced) {
-          status.innerHTML = `<span style="color: #4ade80;">✓ Profile generated & synced to your Cloud Account!</span>`;
+        if (saveRes.saved) {
+          status.innerHTML = `<span style="color: #4ade80;">✓ Profile generated and saved</span>`;
         } else {
-          status.innerHTML = `<span style="color: var(--gold-light);">✓ Profile generated & saved locally. (Sign in with Google for full Cloud Sync)</span>`;
+          status.innerHTML = `<span style="color: var(--gold-light);">✓ Profile generated. Sign in with Google to keep it on every device.</span>`;
         }
 
         refreshHoroscopeHistory();

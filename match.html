@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>It's a Match — Cosmic Multi-Person Compatibility | AstroGPT</title>
-  <meta name="description" content="Calculate cosmic compatibility across multiple people. Discover best matches, synastry chemistry, and cloud-synced astrological profiles." />
+  <title>Horoscope Chart — Cosmic Multi-Person Compatibility | AstroGPT</title>
+  <meta name="description" content="Calculate cosmic compatibility across multiple people. Discover best matches, synastry chemistry, and saved astrological profiles." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -513,8 +513,8 @@
           <a href="/#about">About</a>
           <a href="/signs.html">It's a Sign</a>
           <a href="/research.html">Research</a>
-          <a href="/horoscope.html">Horoscope</a>
-          <a href="/match.html" class="active" style="color: var(--gold-light);">It's a Match</a>
+          <a href="/horoscope.html">It's a Match</a>
+          <a href="/match.html" class="nav-cta active" style="color: var(--gold-light);">Horoscope Chart</a>
         </div>
         <div id="authContainer"></div>
       </div>
@@ -523,7 +523,7 @@
 
   <main>
     <div class="eyebrow"><span class="eyebrow-dot"></span> Astrological Synastry & Compatibility Engine</div>
-    <h1>It's a <span>Match</span></h1>
+    <h1>Horoscope <span>Chart</span></h1>
     <p class="lead">Enter birth information for two or more people. Our engine calculates pairwise celestial compatibility, elemental chemistry, planetary harmonies, and celebrates the best match across your group!</p>
 
     <!-- Multi-person input form -->
@@ -668,8 +668,8 @@
         </div>
 
         <div style="margin-top: 26px;">
-          <span id="cloudSavedIndicator" style="font-size: 12px; color: #a855f7; display: inline-flex; align-items: center; gap: 6px;">
-            ☁️ Synced to your Cloud History
+          <span id="savedIndicator" style="font-size: 12px; color: #a855f7; display: none; align-items: center; gap: 6px;">
+            Saved
           </span>
         </div>
       </section>
@@ -682,10 +682,9 @@
         <div class="pairs-grid" id="allPairsGrid"></div>
       </section>
 
-      <!-- Cloud History Drawer -->
       <section class="history-drawer">
         <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--gold); margin-bottom: 14px;">
-          Saved Cloud Match Sessions
+          Saved Match Sessions
         </h3>
         <div id="matchHistoryList">
           <p style="font-size: 13px; color: var(--muted);">No past sessions yet. Your calculations stay recorded in your account!</p>
@@ -816,8 +815,12 @@
 
         renderMatchResults(data);
 
-        // Save session to Cloud Firestore & LocalStorage
-        await astroFirebase.saveMatchSession(data);
+        const saveRes = await astroFirebase.saveMatchSession(data);
+        const savedIndicator = document.getElementById("savedIndicator");
+        if (savedIndicator) {
+          savedIndicator.style.display = "inline-flex";
+          savedIndicator.textContent = saveRes.saved ? "Saved" : "Saved on this device";
+        }
         refreshMatchHistory();
 
       } catch (err) {

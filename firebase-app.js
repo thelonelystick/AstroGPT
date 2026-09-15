@@ -1,10 +1,11 @@
-// AstroGPT Firebase Auth & Cloud Firestore Client Module
+// AstroGPT Firebase Auth & Firestore Client Module
 // Using Firebase JS SDK v10 (Modular ESM)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   signInWithPopup,
+  signInWithCredential,
   GoogleAuthProvider,
   signInAnonymously,
   signOut,
@@ -18,10 +19,11 @@ import {
   query,
   orderBy,
   limit,
-  serverTimestamp
+  serverTimestamp,
+  doc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Default credentials provided for astrogpt-da2e2
 const DEFAULT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyD1vyZyXapmfdOyqTgctbJob--s645NcrA",
   authDomain: "astrogpt-da2e2.firebaseapp.com",
@@ -32,6 +34,20 @@ const DEFAULT_FIREBASE_CONFIG = {
   measurementId: "G-X3MCKV2FYY"
 };
 
+function toPlain(value) {
+  return JSON.parse(JSON.stringify(value ?? {}));
+}
+
+function withTimeout(promise, ms, label) {
+  let timer;
+  return Promise.race([
+    promise.finally(() => clearTimeout(timer)),
+    new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+    })
+  ]);
+}
+
 class AstroFirebaseManager {
   constructor() {
     this.app = null;
@@ -41,6 +57,8 @@ class AstroFirebaseManager {
     this.isGuest = true;
     this.listeners = [];
     this.isInitialized = false;
+    this.googleClientId = "702260817489-jsrc44ee2f4f8rbg7fdemat6e3mjq7jd.apps.googleusercontent.com";
+    this.gisReady = null;
   }
 
   async initialize() {
@@ -52,6 +70,7 @@ class AstroFirebaseManager {
       if (res.ok) {
         const fetched = await res.json();
         if (fetched.apiKey) config = fetched;
+        if (fetched.googleClientId) this.googleClientId = fetched.googleClientId;
       }
     } catch (e) {
       console.warn("Using default Firebase config");
@@ -66,11 +85,9 @@ class AstroFirebaseManager {
         if (user) {
           this.currentUser = user;
           this.isGuest = user.isAnonymous;
-          console.log(`[Firebase Auth] Active user: ${user.displayName || (user.isAnonymous ? 'Guest User' : user.uid)}`);
         } else {
           this.currentUser = null;
           this.isGuest = true;
-          // Auto-sign-in as guest if enabled
           this.ensureGuestSession();
         }
         this.notifyListeners();
@@ -79,7 +96,6 @@ class AstroFirebaseManager {
       this.isInitialized = true;
     } catch (err) {
       console.error("[Firebase] Initialization error:", err);
-      // Fallback local guest session
       this.setupLocalFallbackSession();
     }
   }
@@ -111,15 +127,132 @@ class AstroFirebaseManager {
     }
   }
 
+  loadGoogleIdentity() {
+    if (window.google?.accounts?.oauth2) return Promise.resolve();
+    if (this.gisReady) return this.gisReady;
+    this.gisReady = new Promise((resolve, reject) => {
+      const existing = document.querySelector("script[data-google-gis]");
+      if (existing) {
+        existing.addEventListener("load", resolve);
+        existing.addEventListener("error", () => reject(new Error("Google Identity failed to load")));
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.dataset.googleGis = "true";
+      script.onload = resolve;
+      script.onerror = () => reject(new Error("Google Identity failed to load"));
+      document.head.appendChild(script);
+    });
+    return this.gisReady;
+  }
+
+  requestGoogleAuthCode() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.loadGoogleIdentity();
+        if (!this.googleClientId) {
+          reject(new Error("Google Client ID is missing"));
+          return;
+        }
+        const client = window.google.accounts.oauth2.initCodeClient({
+          client_id: this.googleClientId,
+          scope: "openid email profile",
+          ux_mode: "popup",
+          callback: (response) => {
+            if (response.code) resolve(response.code);
+            else reject(new Error(response.error || "Google login was cancelled"));
+          },
+          error_callback: (err) => reject(new Error(err?.message || "Google login was cancelled"))
+        });
+        client.requestCode();
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
   async signInWithGoogle() {
-    if (!this.auth) throw new Error("Firebase Auth is not ready.");
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
-    const result = await signInWithPopup(this.auth, provider);
-    this.currentUser = result.user;
-    this.isGuest = false;
-    this.notifyListeners();
-    return result.user;
+    let googleUser = null;
+    let idToken = null;
+
+    try {
+      const code = await this.requestGoogleAuthCode();
+      const authRes = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      });
+      const authJson = await authRes.json();
+      if (!authRes.ok) throw new Error(authJson.error || "Google login failed");
+      googleUser = authJson.user;
+      idToken = authJson.idToken;
+    } catch (gisError) {
+      if (!this.auth) throw gisError;
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      const popupResult = await signInWithPopup(this.auth, provider);
+      this.currentUser = popupResult.user;
+      this.isGuest = false;
+      await this.saveUserProfile(popupResult.user);
+      this.notifyListeners();
+      return popupResult.user;
+    }
+
+    if (this.auth && idToken) {
+      try {
+        const credential = GoogleAuthProvider.credential(idToken);
+        const result = await signInWithCredential(this.auth, credential);
+        this.currentUser = result.user;
+        this.isGuest = false;
+        await this.saveUserProfile(result.user);
+        this.notifyListeners();
+        return result.user;
+      } catch (firebaseErr) {
+        console.warn("[Firebase Auth] Credential sign-in note:", firebaseErr.message);
+      }
+    }
+
+    if (googleUser) {
+      this.currentUser = {
+        uid: googleUser.uid,
+        displayName: googleUser.name,
+        email: googleUser.email,
+        photoURL: googleUser.picture,
+        isAnonymous: false
+      };
+      this.isGuest = false;
+      await this.saveUserProfile(this.currentUser);
+      this.notifyListeners();
+      return this.currentUser;
+    }
+
+    throw new Error("Google login failed");
+  }
+
+  async saveUserProfile(user) {
+    if (!user) return;
+    const profile = {
+      uid: user.uid,
+      displayName: user.displayName || user.name || "Google User",
+      email: user.email || "",
+      photoURL: user.photoURL || user.picture || "",
+      isGuest: Boolean(user.isAnonymous),
+      updatedAt: new Date().toISOString()
+    };
+    localStorage.setItem(`astrogpt_profile_${user.uid}`, JSON.stringify(profile));
+    if (this.db && user.uid) {
+      try {
+        await withTimeout(setDoc(doc(this.db, "users", user.uid), {
+          ...profile,
+          updatedAt: serverTimestamp()
+        }, { merge: true }), 8000, "Firebase profile");
+      } catch (err) {
+        console.warn("[Firestore] Profile save note:", err.message);
+      }
+    }
   }
 
   async signOut() {
@@ -145,118 +278,94 @@ class AstroFirebaseManager {
     }
   }
 
-  // Save Horoscope to Firestore (or local backup)
-  async saveHoroscope(horoscopeData) {
-    const uid = this.currentUser ? this.currentUser.uid : "guest";
+  uid() {
+    return this.currentUser ? this.currentUser.uid : "guest";
+  }
+
+  async ready() {
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+  }
+
+  async saveCollectionItem(subcollection, data, localKeyPrefix) {
+    await this.ready();
+    const uid = this.uid();
     const record = {
-      ...horoscopeData,
+      ...toPlain(data),
       savedAt: new Date().toISOString(),
       userId: uid,
       isGuest: this.isGuest
     };
 
-    // Save to LocalStorage as quick cache
-    const key = `astrogpt_horoscopes_${uid}`;
-    const existing = JSON.parse(localStorage.getItem(key) || "[]");
-    existing.unshift(record);
-    localStorage.setItem(key, JSON.stringify(existing.slice(0, 50)));
-
-    // Save to Cloud Firestore
-    if (this.db && uid) {
-      try {
-        const colRef = collection(this.db, "users", uid, "horoscopes");
-        const docRef = await addDoc(colRef, {
-          ...record,
-          createdAt: serverTimestamp()
-        });
-        console.log(`[Firestore] Saved horoscope document: ${docRef.id}`);
-        return { success: true, id: docRef.id, cloudSynced: true };
-      } catch (err) {
-        console.warn("[Firestore] Could not sync to cloud, stored locally:", err.message);
-        return { success: true, cloudSynced: false, reason: err.message };
-      }
-    }
-    return { success: true, cloudSynced: false };
-  }
-
-  // Fetch Horoscopes History
-  async getHoroscopes() {
-    const uid = this.currentUser ? this.currentUser.uid : "guest";
-    const local = JSON.parse(localStorage.getItem(`astrogpt_horoscopes_${uid}`) || "[]");
-
-    if (this.db && uid && !this.isGuest) {
-      try {
-        const colRef = collection(this.db, "users", uid, "horoscopes");
-        const q = query(colRef, orderBy("createdAt", "desc"), limit(20));
-        const snapshot = await getDocs(q);
-        const cloudRecords = [];
-        snapshot.forEach(doc => cloudRecords.push({ id: doc.id, ...doc.data() }));
-        if (cloudRecords.length > 0) return cloudRecords;
-      } catch (err) {
-        console.warn("[Firestore] Failed to read cloud horoscopes, using local:", err.message);
-      }
-    }
-    return local;
-  }
-
-  // Save "It's a Match" Session to Firestore
-  async saveMatchSession(matchData) {
-    const uid = this.currentUser ? this.currentUser.uid : "guest";
-    const record = {
-      ...matchData,
-      savedAt: new Date().toISOString(),
-      userId: uid,
-      isGuest: this.isGuest
-    };
-
-    const key = `astrogpt_matches_${uid}`;
+    const key = `${localKeyPrefix}_${uid}`;
     const existing = JSON.parse(localStorage.getItem(key) || "[]");
     existing.unshift(record);
     localStorage.setItem(key, JSON.stringify(existing.slice(0, 50)));
 
     if (this.db && uid) {
       try {
-        const colRef = collection(this.db, "users", uid, "matches");
-        const docRef = await addDoc(colRef, {
+        const colRef = collection(this.db, "users", uid, subcollection);
+        const docRef = await withTimeout(addDoc(colRef, {
           ...record,
           createdAt: serverTimestamp()
-        });
-        console.log(`[Firestore] Saved match session: ${docRef.id}`);
-        return { success: true, id: docRef.id, cloudSynced: true };
+        }), 8000, "Firebase write");
+        return { success: true, id: docRef.id, saved: true };
       } catch (err) {
-        console.warn("[Firestore] Stored match locally, cloud sync notice:", err.message);
-        return { success: true, cloudSynced: false, reason: err.message };
+        console.warn(`[Firestore] Saved ${subcollection} locally:`, err.message);
+        return { success: true, saved: false, reason: err.message };
       }
     }
-    return { success: true, cloudSynced: false };
+    return { success: true, saved: false };
   }
 
-  // Fetch Match Sessions History
-  async getMatchSessions() {
-    const uid = this.currentUser ? this.currentUser.uid : "guest";
-    const local = JSON.parse(localStorage.getItem(`astrogpt_matches_${uid}`) || "[]");
+  async getCollectionItems(subcollection, localKeyPrefix) {
+    const uid = this.uid();
+    const local = JSON.parse(localStorage.getItem(`${localKeyPrefix}_${uid}`) || "[]");
 
-    if (this.db && uid && !this.isGuest) {
+    if (this.db && uid) {
       try {
-        const colRef = collection(this.db, "users", uid, "matches");
+        const colRef = collection(this.db, "users", uid, subcollection);
         const q = query(colRef, orderBy("createdAt", "desc"), limit(20));
-        const snapshot = await getDocs(q);
-        const cloudRecords = [];
-        snapshot.forEach(doc => cloudRecords.push({ id: doc.id, ...doc.data() }));
-        if (cloudRecords.length > 0) return cloudRecords;
+        const snapshot = await withTimeout(getDocs(q), 8000, "Firebase read");
+        const records = [];
+        snapshot.forEach((item) => records.push({ id: item.id, ...item.data() }));
+        if (records.length > 0) return records;
       } catch (err) {
-        console.warn("[Firestore] Failed to read cloud matches, using local:", err.message);
+        console.warn(`[Firestore] Reading ${subcollection} from local store:`, err.message);
       }
     }
     return local;
+  }
+
+  saveHoroscope(horoscopeData) {
+    return this.saveCollectionItem("horoscopes", horoscopeData, "astrogpt_horoscopes");
+  }
+
+  getHoroscopes() {
+    return this.getCollectionItems("horoscopes", "astrogpt_horoscopes");
+  }
+
+  saveMatchSession(matchData) {
+    return this.saveCollectionItem("matches", matchData, "astrogpt_matches");
+  }
+
+  getMatchSessions() {
+    return this.getCollectionItems("matches", "astrogpt_matches");
+  }
+
+  saveSign(signData) {
+    return this.saveCollectionItem("signs", signData, "astrogpt_signs");
+  }
+
+  getSigns() {
+    return this.getCollectionItems("signs", "astrogpt_signs");
   }
 }
 
-// Global Singleton
 export const astroFirebase = new AstroFirebaseManager();
 astroFirebase.initialize();
 
-// Helper to inject Auth Bar into any page navbar or container
 export function setupAuthUI(containerElement) {
   if (!containerElement) return;
 
@@ -267,10 +376,10 @@ export function setupAuthUI(containerElement) {
     if (!isGuest && user) {
       containerElement.innerHTML = `
         <div style="display: flex; align-items: center; gap: 10px; background: rgba(30,16,56,.75); padding: 4px 10px 4px 5px; border-radius: 999px; border: 1px solid rgba(214,173,92,.35);">
-          <img src="${user.photoURL || '/favicon.svg?v=2'}" alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #d6ad5c; object-fit: cover;" />
+          <img src="${user.photoURL || "/favicon.svg?v=2"}" alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #d6ad5c; object-fit: cover;" />
           <div style="display: flex; flex-direction: column; line-height: 1.1;">
-            <span style="font-size: 11px; font-weight: 600; color: #fff8e7;">${user.displayName || 'Google User'}</span>
-            <span style="font-size: 9px; color: #a855f7; display: flex; align-items: center; gap: 4px;">☁️ Cloud Synced</span>
+            <span style="font-size: 11px; font-weight: 600; color: #fff8e7;">${user.displayName || "Google User"}</span>
+            <span style="font-size: 9px; color: #a855f7;">Signed in</span>
           </div>
           <button id="authSignOutBtn" title="Sign Out" style="background: none; border: none; color: #c9b9d8; cursor: pointer; padding: 2px 6px; font-size: 12px; margin-left: 4px;">✕</button>
         </div>
