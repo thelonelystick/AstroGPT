@@ -5,9 +5,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth,
   signInWithPopup,
-  signInWithCredential,
   GoogleAuthProvider,
   signInAnonymously,
+  signInWithRedirect,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -57,8 +57,6 @@ class AstroFirebaseManager {
     this.isGuest = true;
     this.listeners = [];
     this.isInitialized = false;
-    this.googleClientId = "702260817489-jsrc44ee2f4f8rbg7fdemat6e3mjq7jd.apps.googleusercontent.com";
-    this.gisReady = null;
   }
 
   async initialize() {
@@ -70,7 +68,6 @@ class AstroFirebaseManager {
       if (res.ok) {
         const fetched = await res.json();
         if (fetched.apiKey) config = fetched;
-        if (fetched.googleClientId) this.googleClientId = fetched.googleClientId;
       }
     } catch (e) {
       console.warn("Using default Firebase config");
@@ -127,70 +124,15 @@ class AstroFirebaseManager {
     }
   }
 
-  loadGoogleIdentity() {
-    if (window.google?.accounts?.oauth2) return Promise.resolve();
-    if (this.gisReady) return this.gisReady;
-    this.gisReady = new Promise((resolve, reject) => {
-      const existing = document.querySelector("script[data-google-gis]");
-      if (existing) {
-        existing.addEventListener("load", resolve);
-        existing.addEventListener("error", () => reject(new Error("Google Identity failed to load")));
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.dataset.googleGis = "true";
-      script.onload = resolve;
-      script.onerror = () => reject(new Error("Google Identity failed to load"));
-      document.head.appendChild(script);
-    });
-    return this.gisReady;
-  }
-
-  requestGoogleAuthCode() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await this.loadGoogleIdentity();
-        if (!this.googleClientId) {
-          reject(new Error("Google Client ID is missing"));
-          return;
-        }
-        const client = window.google.accounts.oauth2.initCodeClient({
-          client_id: this.googleClientId,
-          scope: "openid email profile",
-          ux_mode: "popup",
-          callback: (response) => {
-            if (response.code) resolve(response.code);
-            else reject(new Error(response.error || "Google login was cancelled"));
-          },
-          error_callback: (err) => reject(new Error(err?.message || "Google login was cancelled"))
-        });
-        client.requestCode();
-      } catch (err) {
-        reject(err);
-      }
-    });
-  }
-
   async signInWithGoogle() {
-    let googleUser = null;
-    let idToken = null;
+    if (!this.auth) {
+      throw new Error("Google sign-in is temporarily unavailable. Please refresh and try again.");
+    }
 
+    // Start Firebase's popup while this click is still a user gesture. The old
+    // flow first waited for a separate OAuth popup, then opened Firebase's
+    // popup as a fallback, which browsers correctly treated as an unwanted popup.
     try {
-      const code = await this.requestGoogleAuthCode();
-      const authRes = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code })
-      });
-      const authJson = await authRes.json();
-      if (!authRes.ok) throw new Error(authJson.error || "Google login failed");
-      googleUser = authJson.user;
-      idToken = authJson.idToken;
-    } catch (gisError) {
-      if (!this.auth) throw gisError;
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
       const popupResult = await signInWithPopup(this.auth, provider);
@@ -199,37 +141,15 @@ class AstroFirebaseManager {
       await this.saveUserProfile(popupResult.user);
       this.notifyListeners();
       return popupResult.user;
-    }
-
-    if (this.auth && idToken) {
-      try {
-        const credential = GoogleAuthProvider.credential(idToken);
-        const result = await signInWithCredential(this.auth, credential);
-        this.currentUser = result.user;
-        this.isGuest = false;
-        await this.saveUserProfile(result.user);
-        this.notifyListeners();
-        return result.user;
-      } catch (firebaseErr) {
-        console.warn("[Firebase Auth] Credential sign-in note:", firebaseErr.message);
+    } catch (error) {
+      if (error.code === "auth/popup-blocked") {
+        // A redirect is not a popup and remains a reliable option when a browser
+        // or extension blocks popup windows.
+        await signInWithRedirect(this.auth, new GoogleAuthProvider());
+        return null;
       }
+      throw error;
     }
-
-    if (googleUser) {
-      this.currentUser = {
-        uid: googleUser.uid,
-        displayName: googleUser.name,
-        email: googleUser.email,
-        photoURL: googleUser.picture,
-        isAnonymous: false
-      };
-      this.isGuest = false;
-      await this.saveUserProfile(this.currentUser);
-      this.notifyListeners();
-      return this.currentUser;
-    }
-
-    throw new Error("Google login failed");
   }
 
   async saveUserProfile(user) {
@@ -379,7 +299,7 @@ export function setupAuthUI(containerElement) {
           <img src="${user.photoURL || "/favicon.svg?v=2"}" alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #d6ad5c; object-fit: cover;" />
           <div style="display: flex; flex-direction: column; line-height: 1.1;">
             <span style="font-size: 11px; font-weight: 600; color: #fff8e7;">${user.displayName || "Google User"}</span>
-            <span style="font-size: 9px; color: #a855f7;">Signed in</span>
+            <span style="font-size: 9px; color: #a855f7;">Login · Google</span>
           </div>
           <button id="authSignOutBtn" title="Sign Out" style="background: none; border: none; color: #c9b9d8; cursor: pointer; padding: 2px 6px; font-size: 12px; margin-left: 4px;">✕</button>
         </div>
@@ -391,12 +311,9 @@ export function setupAuthUI(containerElement) {
     } else {
       containerElement.innerHTML = `
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 11px; color: #c9b9d8; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);">
-            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #4ade80;"></span> Guest Mode
-          </span>
-          <button id="authGoogleSignInBtn" style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(214,173,92,.2), rgba(168,85,247,.2)); border: 1px solid rgba(214,173,92,.5); color: #f1d38b; padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s ease;">
+          <button id="authGoogleSignInBtn" title="Current login: Guest Mode. Sign in with Google." aria-label="Current login: Guest Mode. Sign in with Google." style="display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, rgba(214,173,92,.2), rgba(168,85,247,.2)); border: 1px solid rgba(214,173,92,.5); color: #f1d38b; padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s ease;">
             <svg width="12" height="12" viewBox="0 0 24 24"><path fill="#f1d38b" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.761H12.545z"/></svg>
-            Sign In with Google
+            Login · Guest Mode
           </button>
         </div>
       `;
@@ -405,7 +322,7 @@ export function setupAuthUI(containerElement) {
         signInBtn.onclick = async () => {
           try {
             signInBtn.disabled = true;
-            signInBtn.textContent = "Connecting...";
+            signInBtn.textContent = "Opening Google...";
             await astroFirebase.signInWithGoogle();
           } catch (err) {
             console.error(err);
