@@ -26,4 +26,4 @@ The server listens on `http://localhost:3000` by default. Set `PORT` to use a di
 
 The response contains `profile`, `birthDetails`, and `interpretation`. Invalid dates, times, locations, or JSON receive a `400` response. Results are educational, deterministic representations and are not scientifically validated predictions.
 
-By @thelonelystick
+By thelonelystick
